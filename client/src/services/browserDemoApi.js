@@ -5,7 +5,6 @@ import {
   getAllergyLabel,
   sampleMenu
 } from "../data/demoData.js";
-import { createWorker } from "tesseract.js";
 
 const keywordSets = {
   leanProtein: ["chicken", "salmon", "shrimp", "turkey", "tofu", "egg", "beans", "chickpeas", "steak", "fish"],
@@ -254,35 +253,7 @@ export function getDemoSampleMenu() {
   return sampleMenu;
 }
 
-function cleanOcrText(text) {
-  return String(text || "")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-function isImageFile(file) {
-  return typeof Blob !== "undefined" && file instanceof Blob && file.type?.startsWith("image/");
-}
-
-async function extractImageText(file) {
-  const worker = await createWorker("eng", 1);
-
-  try {
-    await worker.setParameters({
-      preserve_interword_spaces: "1"
-    });
-    const {
-      data: { text }
-    } = await worker.recognize(file);
-
-    return cleanOcrText(text);
-  } finally {
-    await worker.terminate();
-  }
-}
-
-export async function runDemoOcr(input = {}) {
+export function runDemoOcr(input = {}) {
   const useSample = Boolean(input.useSampleMenu || input.useSample);
   const uploadedText = String(input.uploadedText || input.menuText || "").trim();
   const uploadedFile = input.uploadedFile || null;
@@ -298,30 +269,6 @@ export async function runDemoOcr(input = {}) {
       menuName: sampleMenu.menuName,
       extractedText: sampleMenu.text,
       note: "Demo OCR returned the seeded sample menu. The OCR provider can be swapped with a real image or document extraction service later."
-    };
-  }
-
-  if (isImageFile(uploadedFile)) {
-    const extractedText = await extractImageText(uploadedFile);
-
-    if (extractedText.length >= 20) {
-      return {
-        provider: "tesseract.js",
-        source: "uploaded-photo",
-        restaurantName: "Uploaded Menu",
-        menuName: fileName,
-        extractedText,
-        note: `Tesseract.js extracted menu text from ${fileName}. Review recommendations carefully because photo OCR can miss small text, prices, or ingredient details.`
-      };
-    }
-
-    return {
-      provider: "tesseract.js",
-      source: "uploaded-photo-fallback",
-      restaurantName: "Uploaded Menu",
-      menuName: fileName,
-      extractedText: sampleMenu.text,
-      note: `Tesseract.js ran on ${fileName}, but did not find enough readable menu text, so the demo used seeded menu text for recommendations.`
     };
   }
 

@@ -20,6 +20,7 @@ export default function HomePage({
     <div className="page-stack">
       <section className="intro-band">
         <div>
+          <img className="hero-brand-logo" src="/nutriguide-logo.png" alt="NutriGuide AI" />
           <span className="eyebrow">AI-powered menu guidance</span>
           <h1>Scan a restaurant menu and find the best choices for your diet, health needs, allergies, and preferences.</h1>
           <p>

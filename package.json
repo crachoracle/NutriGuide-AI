@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "NutriGuide AI hackathon MVP with a React client, Express API, browser image OCR, menu recommendations, and demo journal storage.",
+  "description": "NutriGuide AI hackathon MVP with a React client, Express API, mock OCR, menu recommendations, and demo journal storage.",
   "workspaces": [
     "client",
     "server"

@@ -11,7 +11,7 @@ export default function Header({ activePage, hasResults, onNavigate }) {
   return (
     <header className="site-header">
       <button className="brand-button" type="button" onClick={() => onNavigate("home")}>
-        <span className="brand-mark">NG</span>
+        <img className="brand-logo" src="/nutriguide-logo.png" alt="" aria-hidden="true" />
         <span>
           <strong>NutriGuide AI</strong>
           <small>Menu guidance for real-world meals</small>

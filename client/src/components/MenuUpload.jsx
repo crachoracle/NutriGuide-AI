@@ -158,13 +158,13 @@ export default function MenuUpload({ loading, onAnalyze }) {
                     {fileMeta.type || "Unknown file type"} - {Math.ceil(fileMeta.size / 1024)} KB
                   </span>
                   <p>
-                    Image OCR runs during analysis. PDF uploads use demo extraction for now.
+                    Mock OCR will process this upload and return demo extracted menu text.
                   </p>
                 </div>
               </div>
             ) : (
               <div className="empty-state">
-                Select a camera photo, image, or PDF menu to run menu analysis.
+                Select a camera photo, image, or PDF menu to run the mock OCR analysis.
               </div>
             )}
           </div>

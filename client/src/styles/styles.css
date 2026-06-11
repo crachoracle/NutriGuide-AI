@@ -84,15 +84,14 @@ main {
   text-align: left;
 }
 
-.brand-mark {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
   border-radius: 8px;
-  background: var(--green);
-  color: #fff;
-  font-weight: 800;
+  object-fit: contain;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(24, 50, 38, 0.1);
 }
 
 .brand-button strong,
@@ -166,6 +165,13 @@ main {
 
 .intro-band {
   padding: 10px 0 8px;
+}
+
+.hero-brand-logo {
+  display: block;
+  width: min(280px, 72vw);
+  height: auto;
+  margin: 0 0 18px;
 }
 
 .intro-band h1,
