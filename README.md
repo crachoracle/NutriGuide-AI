@@ -137,7 +137,8 @@ This avoids separate frontend and backend tunnel URLs.
 
 This repo is configured for Vercel with:
 
-- `vercel.json` building the Vite app into root `dist/`
+- Vite building the frontend into `client/dist`
+- The root build script mirroring `client/dist` to root `dist` for Vercel project-root builds
 - `api/[...path].js` exposing the Express API as a Vercel Function
 - Browser `localStorage` journal persistence for the deployed demo
 
@@ -146,7 +147,7 @@ Steps:
 1. Push this project to GitHub.
 2. Create a Vercel account and choose `Add New... > Project`.
 3. Import the GitHub repo.
-4. Keep the root directory as the project root.
+4. Keep the root directory as the project root when possible. This keeps the `/api` Vercel Function included in the deployment.
 5. Use these settings if Vercel does not auto-detect them:
 
 ```text
@@ -155,6 +156,8 @@ Build Command: npm run build
 Output Directory: dist
 Install Command: npm install
 ```
+
+If the Vercel project is already configured with `client/` as the root directory, the frontend build will still create `client/dist` as that project's local `dist/` output. For the API function to deploy too, switch the Vercel project root back to the repository root and redeploy.
 
 6. Deploy.
 
