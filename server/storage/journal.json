@@ -1,0 +1,28 @@
+[
+  {
+    "id": "6b35c5f9-0bd1-4b06-af46-d76cab04d9b0",
+    "savedAt": "2026-06-11T03:36:45.723Z",
+    "restaurantName": "Uploaded Menu",
+    "menuName": "menu1.jpg",
+    "dishName": "Shrimp Stir Fry",
+    "dietaryProfile": "omnivore",
+    "dietaryProfileLabel": "Omnivore / no preference",
+    "allergyOptions": [],
+    "allergyLabels": [],
+    "score": 91,
+    "category": "Best Choices",
+    "reasoning": "Includes vegetables, legumes, whole grains, or other plant-forward ingredients. Contains a recognizable protein source that can support satiety and meal balance. Looks like a balanced meal with protein and produce.",
+    "concerns": [
+      "No major concern keywords were detected from the menu text."
+    ],
+    "assumptions": [
+      "Assumption: Recommendation is based only on menu text, not exact nutrition facts or verified kitchen procedures."
+    ],
+    "suggestedModification": "Substitute vegetables for fries, rice, pasta, bread, or tortillas.",
+    "riskTags": [
+      "refined carbs",
+      "sodium"
+    ],
+    "notes": ""
+  }
+]

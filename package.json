@@ -1,0 +1,18 @@
+{
+  "name": "nutriguide-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NutriGuide AI hackathon MVP with a React client, Express API, mock OCR, mock menu recommendations, and JSON journal storage.",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.cjs",
+    "server": "npm run dev --workspace server",
+    "client": "npm run dev --workspace client",
+    "build": "npm run build --workspace client",
+    "demo": "npm run build && npm start",
+    "start": "npm run start --workspace server"
+  }
+}
