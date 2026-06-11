@@ -18,7 +18,7 @@ Restaurant menus are inconsistent, unstructured, and rarely personalized. People
 ## MVP Demo Flow
 
 1. Open the app.
-2. Choose the seeded restaurant menu, take a menu photo, upload a photo/PDF, or paste/upload menu text.
+2. Choose the seeded restaurant menu, take a menu photo, upload a photo/PDF, or paste/upload menu text. Image uploads run browser OCR; PDFs use demo extraction.
 3. Pick one dietary profile from grouped options.
 4. Select allergy sub-options when using Allergy-aware mode.
 5. Analyze the menu.
@@ -33,7 +33,8 @@ Restaurant menus are inconsistent, unstructured, and rarely personalized. People
 - Node.js and Express backend
 - Browser localStorage for hackathon journal persistence on static/serverless hosts
 - JSON file storage fallback for the local Express journal endpoint
-- Mock OCR service
+- Browser image OCR with Tesseract.js
+- Mock/demo OCR fallback for PDFs and unreadable images
 - Mock deterministic recommendation service
 - Seeded sample menu data
 
@@ -48,7 +49,7 @@ Express API / Vercel serverless function
   |-- routes/menuRoutes.js
   |     |-- sample menu
   |     |-- dietary profiles
-  |     `-- mock OCR
+  |     `-- mock OCR fallback
   |-- routes/recommendationRoutes.js
   |     `-- mock recommendation service
   `-- routes/journalRoutes.js
@@ -59,8 +60,12 @@ Browser localStorage
   |-- saved meal journal used by the deployed demo
   `-- clinician summary aggregation used by the deployed demo
 
+client/src/services/browserDemoApi.js
+  |-- browser image OCR with Tesseract.js
+  `-- demo OCR fallback for PDFs and unreadable images
+
 server/src/services/ocr
-  `-- provider boundary for future OCR replacement
+  `-- provider boundary for future server-side OCR replacement
 
 server/src/services/ai
   `-- provider boundary for future LLM or rules engine replacement
@@ -179,7 +184,7 @@ For a production version, replace browser-local journal persistence with Vercel 
 
 - `GET /api/sample-menu` returns demo menu text and metadata.
 - `GET /api/dietary-profiles` returns grouped profile options and allergy sub-options.
-- `POST /api/ocr` accepts a sample-menu flag, uploaded text, or photo/PDF file metadata and returns mocked extracted menu text.
+- `POST /api/ocr` accepts a sample-menu flag, uploaded text, or photo/PDF file metadata and returns mocked extracted menu text. Browser image OCR runs client-side in the deployed demo.
 - `POST /api/recommendations` accepts `menuText`, `dietaryProfile`, and optional `allergyOptions`.
 - `GET /api/journal` returns saved journal entries from the local/server fallback.
 - `POST /api/journal` saves a selected dish recommendation to the local/server fallback.
@@ -188,7 +193,7 @@ For a production version, replace browser-local journal persistence with Vercel 
 ## Demo Script
 
 1. Start the app with `npm run dev`.
-2. Use the sample Harbor Market Cafe menu, or choose `Photo/PDF` and select a menu image or PDF to show the mock OCR upload flow.
+2. Use the sample Harbor Market Cafe menu, or choose `Photo/PDF` and select a menu image to show browser OCR. PDF uploads still use demo extraction.
 3. Select `Low sugar / diabetic-friendly`.
 4. Click `Analyze Menu`.
 5. Point out the ranked sections and explainable recommendation cards.
@@ -232,7 +237,7 @@ The menu scan is the entry point into a continuous nutrition intelligence platfo
 
 ## Known MVP Limitations
 
-- OCR is mocked and accepts seeded sample data, uploaded text, or photo/PDF metadata. It does not extract real text from image or PDF bytes yet.
+- Browser OCR is enabled for image uploads using Tesseract.js. PDF uploads still use demo extraction.
 - Recommendations are deterministic keyword heuristics, not real LLM output.
 - In deployed Vercel demos, journal storage is browser-local and device-specific.
 - The local Express fallback journal endpoint uses a JSON file; the Vercel function fallback is temporary in-memory storage.

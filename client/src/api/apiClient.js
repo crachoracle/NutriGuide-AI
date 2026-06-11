@@ -51,6 +51,10 @@ async function requestOrDemo(path, options, demoResolver) {
   }
 }
 
+function hasBrowserFileUpload(payload) {
+  return typeof File !== "undefined" && payload?.uploadedFile instanceof File;
+}
+
 export function getDietaryProfiles() {
   return requestOrDemo("/dietary-profiles", {}, () => getDemoDietaryProfiles());
 }
@@ -60,11 +64,18 @@ export function getSampleMenu() {
 }
 
 export function runOcr(payload) {
+  if (hasBrowserFileUpload(payload)) {
+    return Promise.resolve(runDemoOcr(payload));
+  }
+
   return requestOrDemo(
     "/ocr",
     {
       method: "POST",
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        ...payload,
+        uploadedFile: payload?.uploadedFileMeta || payload?.uploadedFile || null
+      })
     },
     () => runDemoOcr(payload)
   );

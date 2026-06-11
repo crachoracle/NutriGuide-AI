@@ -7,6 +7,7 @@ export default function MenuUpload({ loading, onAnalyze }) {
   const [uploadedText, setUploadedText] = useState("");
   const [fileName, setFileName] = useState("");
   const [fileMeta, setFileMeta] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [samplePreview, setSamplePreview] = useState("");
 
@@ -28,6 +29,7 @@ export default function MenuUpload({ loading, onAnalyze }) {
     const file = event.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
+    setSelectedFile(null);
     const text = await file.text().catch(() => "");
     setUploadedText(text);
     setMode("text");
@@ -43,6 +45,7 @@ export default function MenuUpload({ loading, onAnalyze }) {
 
     setFileName(file.name);
     setUploadedText("");
+    setSelectedFile(file);
     setFileMeta({
       name: file.name,
       type: file.type || "application/octet-stream",
@@ -59,7 +62,8 @@ export default function MenuUpload({ loading, onAnalyze }) {
       useSampleMenu: mode === "sample",
       uploadedText,
       fileName,
-      uploadedFile: mode === "file" ? fileMeta : null
+      uploadedFile: mode === "file" ? selectedFile : null,
+      uploadedFileMeta: mode === "file" ? fileMeta : null
     });
   }
 
@@ -154,14 +158,13 @@ export default function MenuUpload({ loading, onAnalyze }) {
                     {fileMeta.type || "Unknown file type"} - {Math.ceil(fileMeta.size / 1024)} KB
                   </span>
                   <p>
-                    Mock OCR will process this upload and return demo extracted menu text. A real OCR
-                    provider can replace this later.
+                    Image OCR runs during analysis. PDF uploads use demo extraction for now.
                   </p>
                 </div>
               </div>
             ) : (
               <div className="empty-state">
-                Select a camera photo, image, or PDF menu to run the mock OCR analysis.
+                Select a camera photo, image, or PDF menu to run menu analysis.
               </div>
             )}
           </div>

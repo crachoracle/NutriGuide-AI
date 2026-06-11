@@ -5,6 +5,7 @@ import {
   getAllergyLabel,
   sampleMenu
 } from "../data/demoData.js";
+import { createWorker } from "tesseract.js";
 
 const keywordSets = {
   leanProtein: ["chicken", "salmon", "shrimp", "turkey", "tofu", "egg", "beans", "chickpeas", "steak", "fish"],
@@ -253,12 +254,41 @@ export function getDemoSampleMenu() {
   return sampleMenu;
 }
 
-export function runDemoOcr(input = {}) {
+function cleanOcrText(text) {
+  return String(text || "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function isImageFile(file) {
+  return typeof Blob !== "undefined" && file instanceof Blob && file.type?.startsWith("image/");
+}
+
+async function extractImageText(file) {
+  const worker = await createWorker("eng", 1);
+
+  try {
+    await worker.setParameters({
+      preserve_interword_spaces: "1"
+    });
+    const {
+      data: { text }
+    } = await worker.recognize(file);
+
+    return cleanOcrText(text);
+  } finally {
+    await worker.terminate();
+  }
+}
+
+export async function runDemoOcr(input = {}) {
   const useSample = Boolean(input.useSampleMenu || input.useSample);
   const uploadedText = String(input.uploadedText || input.menuText || "").trim();
   const uploadedFile = input.uploadedFile || null;
-  const fileName = input.fileName || uploadedFile?.name || "uploaded menu";
-  const fileType = uploadedFile?.type || "";
+  const uploadedFileMeta = input.uploadedFileMeta || null;
+  const fileName = input.fileName || uploadedFile?.name || uploadedFileMeta?.name || "uploaded menu";
+  const fileType = uploadedFile?.type || uploadedFileMeta?.type || "";
 
   if (useSample) {
     return {
@@ -271,7 +301,31 @@ export function runDemoOcr(input = {}) {
     };
   }
 
-  if (uploadedFile) {
+  if (isImageFile(uploadedFile)) {
+    const extractedText = await extractImageText(uploadedFile);
+
+    if (extractedText.length >= 20) {
+      return {
+        provider: "tesseract.js",
+        source: "uploaded-photo",
+        restaurantName: "Uploaded Menu",
+        menuName: fileName,
+        extractedText,
+        note: `Tesseract.js extracted menu text from ${fileName}. Review recommendations carefully because photo OCR can miss small text, prices, or ingredient details.`
+      };
+    }
+
+    return {
+      provider: "tesseract.js",
+      source: "uploaded-photo-fallback",
+      restaurantName: "Uploaded Menu",
+      menuName: fileName,
+      extractedText: sampleMenu.text,
+      note: `Tesseract.js ran on ${fileName}, but did not find enough readable menu text, so the demo used seeded menu text for recommendations.`
+    };
+  }
+
+  if (uploadedFile || uploadedFileMeta) {
     return {
       provider: "browser-demo-ocr",
       source: fileType.includes("pdf") ? "uploaded-pdf" : "uploaded-photo",
