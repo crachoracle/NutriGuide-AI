@@ -137,7 +137,7 @@ This avoids separate frontend and backend tunnel URLs.
 
 This repo is configured for Vercel with:
 
-- `vercel.json` building the Vite app from `client/`
+- `vercel.json` building the Vite app into root `dist/`
 - `api/[...path].js` exposing the Express API as a Vercel Function
 - Browser `localStorage` journal persistence for the deployed demo
 
@@ -152,7 +152,7 @@ Steps:
 ```text
 Framework Preset: Vite
 Build Command: npm run build
-Output Directory: client/dist
+Output Directory: dist
 Install Command: npm install
 ```
 

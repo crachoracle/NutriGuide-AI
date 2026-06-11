@@ -5,7 +5,7 @@ import { apiErrorHandler, createApiApp } from "./app.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const clientDistPath = path.resolve(__dirname, "../../client/dist");
+const clientDistPath = path.resolve(__dirname, "../../dist");
 const clientIndexPath = path.join(clientDistPath, "index.html");
 
 const app = createApiApp({ includeErrorHandler: false });
