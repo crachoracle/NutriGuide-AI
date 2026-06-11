@@ -3,6 +3,7 @@ import { useState } from "react";
 import { saveJournalEntry } from "../api/apiClient.js";
 
 export default function RecommendationCard({
+  allergyLabels,
   allergyOptions,
   item,
   menuName,
@@ -22,7 +23,9 @@ export default function RecommendationCard({
         menuName,
         dishName: item.dishName,
         dietaryProfile: profile.id,
+        dietaryProfileLabel: profile.label,
         allergyOptions,
+        allergyLabels,
         score: item.score,
         category: item.category,
         reasoning: item.reasoning,

@@ -1,47 +1,33 @@
-import { promises as fs } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import { randomUUID } from "crypto";
-import { findProfileById, getAllergyLabel } from "./dietaryProfiles.js";
+const JOURNAL_KEY = "nutriguide-ai:journal:v1";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const storagePath = path.resolve(__dirname, "../../storage/journal.json");
-const useMemoryJournal = process.env.VERCEL === "1";
-let memoryJournalEntries = [];
-
-async function ensureJournalFile() {
-  await fs.mkdir(path.dirname(storagePath), { recursive: true });
-  try {
-    await fs.access(storagePath);
-  } catch {
-    await fs.writeFile(storagePath, "[]", "utf8");
-  }
+function storage() {
+  return typeof window === "undefined" ? null : window.localStorage;
 }
 
-async function readJournal() {
-  if (useMemoryJournal) {
-    return memoryJournalEntries;
-  }
+function readJournal() {
+  const store = storage();
+  if (!store) return [];
 
-  await ensureJournalFile();
-  const raw = await fs.readFile(storagePath, "utf8");
   try {
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(store.getItem(JOURNAL_KEY) || "[]");
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
 
-async function writeJournal(entries) {
-  if (useMemoryJournal) {
-    memoryJournalEntries = entries;
-    return;
+function writeJournal(entries) {
+  const store = storage();
+  if (!store) return;
+  store.setItem(JOURNAL_KEY, JSON.stringify(entries));
+}
+
+function createId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
   }
 
-  await ensureJournalFile();
-  await fs.writeFile(storagePath, JSON.stringify(entries, null, 2), "utf8");
+  return `entry-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 function countBy(items, keyGetter) {
@@ -60,31 +46,29 @@ function topEntries(counts, limit = 5) {
     .map(([label, count]) => ({ label, count }));
 }
 
-export async function listJournalEntries() {
-  const entries = await readJournal();
-  return entries.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+export function listJournalEntries() {
+  return readJournal().sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
 }
 
-export async function addJournalEntry(payload) {
+export function addJournalEntry(payload) {
   if (!payload?.dishName || !payload?.dietaryProfile || typeof payload?.score !== "number") {
-    const error = new Error("dishName, dietaryProfile, and score are required to save a journal entry.");
-    error.status = 400;
-    throw error;
+    throw new Error("dishName, dietaryProfile, and score are required to save a journal entry.");
   }
 
-  const profile = findProfileById(payload.dietaryProfile);
   const entry = {
-    id: randomUUID(),
+    id: createId(),
     savedAt: new Date().toISOString(),
     restaurantName: payload.restaurantName || "Unknown restaurant",
     menuName: payload.menuName || "",
     dishName: payload.dishName,
     dietaryProfile: payload.dietaryProfile,
-    dietaryProfileLabel: profile?.label || payload.dietaryProfile,
+    dietaryProfileLabel: payload.dietaryProfileLabel || payload.dietaryProfile,
     allergyOptions: Array.isArray(payload.allergyOptions) ? payload.allergyOptions : [],
-    allergyLabels: Array.isArray(payload.allergyOptions)
-      ? payload.allergyOptions.map(getAllergyLabel)
-      : [],
+    allergyLabels: Array.isArray(payload.allergyLabels)
+      ? payload.allergyLabels
+      : Array.isArray(payload.allergyOptions)
+        ? payload.allergyOptions
+        : [],
     score: payload.score,
     category: payload.category,
     reasoning: payload.reasoning || "",
@@ -95,14 +79,14 @@ export async function addJournalEntry(payload) {
     notes: payload.notes || ""
   };
 
-  const entries = await readJournal();
+  const entries = readJournal();
   entries.push(entry);
-  await writeJournal(entries);
+  writeJournal(entries);
   return entry;
 }
 
-export async function getClinicianSummary() {
-  const entries = await listJournalEntries();
+export function getClinicianSummaryFromJournal() {
+  const entries = listJournalEntries();
   const totalMeals = entries.length;
   const averageScore =
     totalMeals === 0

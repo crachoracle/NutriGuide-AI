@@ -31,7 +31,8 @@ Restaurant menus are inconsistent, unstructured, and rarely personalized. People
 
 - React and Vite frontend
 - Node.js and Express backend
-- JSON file storage for hackathon simplicity
+- Browser localStorage for hackathon journal persistence on static/serverless hosts
+- JSON file storage fallback for the local Express journal endpoint
 - Mock OCR service
 - Mock deterministic recommendation service
 - Seeded sample menu data
@@ -43,7 +44,7 @@ React client
   |
   | HTTP /api/*
   v
-Express API
+Express API / Vercel serverless function
   |-- routes/menuRoutes.js
   |     |-- sample menu
   |     |-- dietary profiles
@@ -51,8 +52,12 @@ Express API
   |-- routes/recommendationRoutes.js
   |     `-- mock recommendation service
   `-- routes/journalRoutes.js
-        |-- JSON journal persistence
+        |-- local JSON journal fallback
         `-- clinician summary aggregation
+
+Browser localStorage
+  |-- saved meal journal used by the deployed demo
+  `-- clinician summary aggregation used by the deployed demo
 
 server/src/services/ocr
   `-- provider boundary for future OCR replacement
@@ -128,15 +133,54 @@ https://your-ngrok-url.ngrok-free.app/api/health
 
 This avoids separate frontend and backend tunnel URLs.
 
+## Deploy To Vercel
+
+This repo is configured for Vercel with:
+
+- `vercel.json` building the Vite app from `client/`
+- `api/[...path].js` exposing the Express API as a Vercel Function
+- Browser `localStorage` journal persistence for the deployed demo
+
+Steps:
+
+1. Push this project to GitHub.
+2. Create a Vercel account and choose `Add New... > Project`.
+3. Import the GitHub repo.
+4. Keep the root directory as the project root.
+5. Use these settings if Vercel does not auto-detect them:
+
+```text
+Framework Preset: Vite
+Build Command: npm run build
+Output Directory: client/dist
+Install Command: npm install
+```
+
+6. Deploy.
+
+Vercel will provide an HTTPS URL like:
+
+```text
+https://your-project.vercel.app
+```
+
+The API should be available at:
+
+```text
+https://your-project.vercel.app/api/health
+```
+
+For a production version, replace browser-local journal persistence with Vercel KV, Vercel Postgres, OCI Object Storage, or another durable database.
+
 ## API Endpoints
 
 - `GET /api/sample-menu` returns demo menu text and metadata.
 - `GET /api/dietary-profiles` returns grouped profile options and allergy sub-options.
 - `POST /api/ocr` accepts a sample-menu flag, uploaded text, or photo/PDF file metadata and returns mocked extracted menu text.
 - `POST /api/recommendations` accepts `menuText`, `dietaryProfile`, and optional `allergyOptions`.
-- `GET /api/journal` returns saved journal entries.
-- `POST /api/journal` saves a selected dish recommendation to the journal.
-- `GET /api/clinician-summary` returns aggregate food journal trends.
+- `GET /api/journal` returns saved journal entries from the local/server fallback.
+- `POST /api/journal` saves a selected dish recommendation to the local/server fallback.
+- `GET /api/clinician-summary` returns aggregate fallback journal trends.
 
 ## Demo Script
 
@@ -187,6 +231,7 @@ The menu scan is the entry point into a continuous nutrition intelligence platfo
 
 - OCR is mocked and accepts seeded sample data, uploaded text, or photo/PDF metadata. It does not extract real text from image or PDF bytes yet.
 - Recommendations are deterministic keyword heuristics, not real LLM output.
-- Journal storage is a local JSON file.
+- In deployed Vercel demos, journal storage is browser-local and device-specific.
+- The local Express fallback journal endpoint uses a JSON file; the Vercel function fallback is temporary in-memory storage.
 - There is no authentication, multi-user isolation, or production deployment configuration.
 - The app does not provide exact nutrition values unless a menu explicitly includes them.

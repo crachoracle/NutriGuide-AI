@@ -1,6 +1,7 @@
 import RecommendationCard from "./RecommendationCard.jsx";
 
 export default function RecommendationSection({
+  allergyLabels,
   allergyOptions,
   items,
   menuName,
@@ -23,6 +24,7 @@ export default function RecommendationSection({
           {items.map((item) => (
             <RecommendationCard
               allergyOptions={allergyOptions}
+              allergyLabels={allergyLabels}
               item={item}
               key={item.id}
               menuName={menuName}

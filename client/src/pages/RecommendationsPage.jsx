@@ -51,6 +51,7 @@ export default function RecommendationsPage({
       {analysis.note ? <div className="status-banner info">{analysis.note}</div> : null}
 
       <RecommendationSection
+        allergyLabels={allergyLabels}
         allergyOptions={analysis.allergyOptions}
         items={analysis.results.recommendations.bestChoices}
         menuName={analysis.menuName}
@@ -60,6 +61,7 @@ export default function RecommendationsPage({
         onSaved={onSaved}
       />
       <RecommendationSection
+        allergyLabels={allergyLabels}
         allergyOptions={analysis.allergyOptions}
         items={analysis.results.recommendations.useCaution}
         menuName={analysis.menuName}
@@ -69,6 +71,7 @@ export default function RecommendationsPage({
         onSaved={onSaved}
       />
       <RecommendationSection
+        allergyLabels={allergyLabels}
         allergyOptions={analysis.allergyOptions}
         items={analysis.results.recommendations.avoid}
         menuName={analysis.menuName}

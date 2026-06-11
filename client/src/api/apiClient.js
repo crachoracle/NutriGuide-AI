@@ -1,3 +1,9 @@
+import {
+  addJournalEntry,
+  getClinicianSummaryFromJournal,
+  listJournalEntries
+} from "../data/browserJournalStore.js";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 async function request(path, options = {}) {
@@ -41,16 +47,13 @@ export function getRecommendations(payload) {
 }
 
 export function getJournal() {
-  return request("/journal");
+  return Promise.resolve(listJournalEntries());
 }
 
 export function saveJournalEntry(payload) {
-  return request("/journal", {
-    method: "POST",
-    body: JSON.stringify(payload)
-  });
+  return Promise.resolve(addJournalEntry(payload));
 }
 
 export function getClinicianSummary() {
-  return request("/clinician-summary");
+  return Promise.resolve(getClinicianSummaryFromJournal());
 }

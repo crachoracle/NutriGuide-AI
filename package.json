@@ -2,6 +2,7 @@
   "name": "nutriguide-ai",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "NutriGuide AI hackathon MVP with a React client, Express API, mock OCR, mock menu recommendations, and JSON journal storage.",
   "workspaces": [
     "client",
